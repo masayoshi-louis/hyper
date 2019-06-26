@@ -470,14 +470,14 @@ impl Http1Transaction for Server {
                     if msg.head.version == Version::HTTP_10 || !Server::can_chunked(msg.req_method, msg.head.subject) {
                         Encoder::close_delimited()
                     } else {
-                        extend(dst, b"transfer-encoding: chunked\r\n");
+                        extend(dst, b"Transfer-Encoding: chunked\r\n");
                         Encoder::chunked()
                     }
                 },
                 None |
                 Some(BodyLength::Known(0)) => {
                     if msg.head.subject != StatusCode::NOT_MODIFIED {
-                        extend(dst, b"content-length: 0\r\n");
+                        extend(dst, b"Content-Length: 0\r\n");
                     }
                     Encoder::length(0)
                 },
@@ -485,7 +485,7 @@ impl Http1Transaction for Server {
                     if msg.head.subject == StatusCode::NOT_MODIFIED {
                         Encoder::length(0)
                     } else {
-                        extend(dst, b"content-length: ");
+                        extend(dst, b"Content-Length: ");
                         let _ = ::itoa::write(&mut dst, len);
                         extend(dst, b"\r\n");
                         Encoder::length(len)
@@ -506,7 +506,7 @@ impl Http1Transaction for Server {
         // cached date is much faster than formatting every request
         if !wrote_date {
             dst.reserve(date::DATE_VALUE_LENGTH + 8);
-            extend(dst, b"date: ");
+            extend(dst, b"Date: ");
             date::extend(dst);
             extend(dst, b"\r\n\r\n");
         } else {
